@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import SharedLogin from './components/SharedLogin';
 import ComingSoon from './components/ComingSoon';
 import PWAInstallPrompt from './components/PWAInstallPrompt';
-import { supabase } from '../../shared/supabaseClient';
+import { supabase } from './supabaseClient';
 
 export default function LPMApp() {
   const [isStandalone, setIsStandalone] = useState(false);
