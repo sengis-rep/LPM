@@ -1,6 +1,6 @@
 // lpm/src/components/SharedLogin.jsx
 import { useState } from 'react';
-import { supabase } from '../../../shared/supabaseClient';
+import { supabase } from '../supabaseClient';
 import lotusTLogo from '../assets/lotus-t-gold.png';
 
 export default function SharedLogin({ tagline = "Powered by LOTUS Global Foods and Trading PTE. LTD.", onSuccessfulLogin }) {
