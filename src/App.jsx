@@ -1,122 +1,127 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+// lpm/src/App.jsx
+import { useState, useEffect } from 'react';
+import SharedLogin from './components/SharedLogin';
+import ComingSoon from './components/ComingSoon';
+import PWAInstallPrompt from './components/PWAInstallPrompt';
+import { supabase } from '../../shared/supabaseClient';
 
-function App() {
-  const [count, setCount] = useState(0)
+export default function LPMApp() {
+  const [isStandalone, setIsStandalone] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
 
+  const [session, setSession] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // 1. Detect if running as an installed PWA
+  useEffect(() => {
+    const checkStandalone = () => {
+      const isStandaloneMode =
+        window.matchMedia('(display-mode: standalone)').matches ||
+        window.navigator.standalone === true; // iOS Safari fallback
+      setIsStandalone(isStandaloneMode);
+    };
+
+    checkStandalone();
+
+    // Capture Android beforeinstallprompt event
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  // 2. Fetch User Profile
+  const fetchProfile = async (userId, retries = 2) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name, block_no, unit_no, condo_name')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      if (data) setProfile(data);
+    } catch (err) {
+      if (retries > 0) {
+        setTimeout(() => fetchProfile(userId, retries - 1), 800);
+      }
+    }
+  };
+
+  // 3. Supabase Auth Session
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      if (session?.user) fetchProfile(session.user.id);
+      setLoading(false);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, currentSession) => {
+      setSession(currentSession);
+      if (currentSession?.user) {
+        fetchProfile(currentSession.user.id);
+      } else if (!currentSession) {
+        setProfile(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLoginSuccess = (userPayload) => {
+    if (userPayload === 'guest') {
+      setSession({ isGuest: true, user: { full_name: 'Guest Neighbor' } });
+      setProfile(null);
+    } else {
+      setSession({ isGuest: false, user: userPayload });
+      fetchProfile(userPayload.id);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setSession(null);
+    setProfile(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-orange-500 flex items-center justify-center text-black font-extrabold text-xl">
+        Loading Lotus Mart...
+      </div>
+    );
+  }
+
+  // GATE 1: User has not installed the PWA (browsing in Chrome/Safari)
+  if (!isStandalone) {
+    return (
+      <PWAInstallPrompt
+        deferredPrompt={deferredPrompt}
+        onInstalled={() => setIsStandalone(true)}
+      />
+    );
+  }
+
+  // GATE 2: App is installed, but user is not logged in
+  if (!session) {
+    return (
+      <SharedLogin
+        tagline="Powered by Lotus Global Foods"
+        onSuccessfulLogin={handleLoginSuccess}
+      />
+    );
+  }
+
+  // GATE 3: App is installed and user is verified -> Show Coming Soon Page
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+    <ComingSoon
+      user={profile || session.user}
+      isGuest={Boolean(session.isGuest)}
+      onLogout={handleLogout}
+    />
+  );
 }
-
-export default App
