@@ -160,7 +160,7 @@ export default function SharedLogin({ tagline = "Powered by LOTUS Global Foods a
                   value={authMethod}
                   onChange={(e) => setAuthMethod(e.target.value)}
                   className="block w-full border-2 border-gray-200 rounded-md p-2.5 text-black focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-yellow-300 transition-all bg-gray-50 hover:bg-white text-sm"
-                  placeholder="+65 8123 4567 or user@domain.com"
+                  placeholder="+65 8900 2325 or user@domain.com"
                 />
                 <p className="text-[11px] font-semibold text-gray-500 mt-1.5">
                   * Email receives OTP pin; mobile numbers verify via shop WhatsApp.

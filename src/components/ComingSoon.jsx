@@ -1,7 +1,7 @@
 // lpm/src/components/ComingSoon.jsx
 export default function ComingSoon({ user, onLogout }) {
-  const shopWhatsApp = "6581234567"; // Set your SG phone number without '+'
-  const shopEmail = "hello@lotusglobalfoods.com";
+  const shopWhatsApp = "6589002325"; // Set your SG phone number without '+'
+  const shopEmail = "admin@lotusmart.com.sg";
 
   const customerName = user?.user_metadata?.full_name || user?.full_name || "a neighborhood resident";
   
