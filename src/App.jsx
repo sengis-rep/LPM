@@ -13,6 +13,9 @@ export default function LPMApp() {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Controls view navigation: defaults directly to 'coming-soon'
+  const [currentView, setCurrentView] = useState('coming-soon'); 
+
   // 1. Detect if running as an installed PWA
   useEffect(() => {
     const checkStandalone = () => {
@@ -80,12 +83,14 @@ export default function LPMApp() {
       setSession({ isGuest: false, user: userPayload });
       fetchProfile(userPayload.id);
     }
+    setCurrentView('coming-soon');
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setSession(null);
     setProfile(null);
+    setCurrentView('coming-soon');
   };
 
   if (loading) {
@@ -96,18 +101,20 @@ export default function LPMApp() {
     );
   }
 
-  // GATE 1: User has not installed the PWA (browsing in Chrome/Safari)
-  if (!isStandalone) {
+  // Explicit View Navigation
+  if (currentView === 'install') {
     return (
       <PWAInstallPrompt
         deferredPrompt={deferredPrompt}
-        onInstalled={() => setIsStandalone(true)}
+        onInstalled={() => {
+          setIsStandalone(true);
+          setCurrentView('coming-soon');
+        }}
       />
     );
   }
 
-  // GATE 2: App is installed, but user is not logged in
-  if (!session) {
+  if (currentView === 'login') {
     return (
       <SharedLogin
         tagline="Powered by Lotus Global Foods"
@@ -116,12 +123,16 @@ export default function LPMApp() {
     );
   }
 
-  // GATE 3: App is installed and user is verified -> Show Coming Soon Page
+  // DEFAULT VIEW: Coming Soon Page
   return (
-    <ComingSoon
-      user={profile || session.user}
-      isGuest={Boolean(session.isGuest)}
-      onLogout={handleLogout}
-    />
+    <div>
+      <ComingSoon
+        user={profile || session?.user}
+        isGuest={Boolean(session?.isGuest)}
+        onLogout={session ? handleLogout : null}
+        onOpenLogin={() => setCurrentView('login')}
+        onOpenInstall={!isStandalone ? () => setCurrentView('install') : null}
+      />
+    </div>
   );
 }
