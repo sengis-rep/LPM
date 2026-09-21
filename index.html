@@ -2,12 +2,65 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>lotus-premium-mart</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Lotus Premium Mart</title>
+
+    <!-- Browser Tab Favicon -->
+    <link rel="icon" type="image/png" href="/lotus-app-icon.jpg" />
+
+    <!-- Apple iOS Home Screen App Icon -->
+    <link rel="apple-touch-icon" href="/lotus-app-icon.jpg" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#F97316" />
+
+    <style>
+      /* Styling for the instant browser loading splash */
+      #app-loader {
+        position: fixed;
+        inset: 0;
+        background-color: #f97316; /* Brand vibrant orange */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 99999;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
+
+      .pulse-logo {
+        width: 96px;
+        height: auto;
+        animation: logoFloat 1.8s ease-in-out infinite;
+        filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.25));
+      }
+
+      @keyframes logoFloat {
+        0%, 100% {
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          transform: translateY(-8px) scale(1.05);
+        }
+      }
+
+      .loader-text {
+        margin-top: 18px;
+        font-size: 1.15rem;
+        font-weight: 900;
+        color: #000000;
+        letter-spacing: -0.02em;
+      }
+    </style>
   </head>
-  <body>
-    <div id="root"></div>
+  <body class="bg-orange-500 m-0 p-0">
+    <div id="root">
+      <!-- Shows instantly on browser load before React bundles finish executing -->
+      <div id="app-loader">
+        <img src="/lotus-app-icon.png" alt="Lotus Mart" class="pulse-logo" />
+        <div class="loader-text">Loading Lotus Mart...</div>
+      </div>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
