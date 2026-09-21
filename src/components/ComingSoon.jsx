@@ -2,23 +2,24 @@
 import HeaderBar from './HeaderBar';
 
 export default function ComingSoon({ user, isGuest, onLogout }) {
-  const shopWhatsApp = "6581234567"; // Insert your Singapore phone number without '+'
-  const shopEmail = "hello@lotusglobalfoods.com"; //[cite: 4]
+  const shopWhatsApp = "6589002325"; // Singapore WhatsApp contact number
+  const shopEmail = "admin@lotusmart.com.sg";
 
-  const customerName = user?.full_name || (isGuest ? "Guest Neighbor" : "Rivertree Resident"); //[cite: 4]
+  const customerName = user?.full_name || (isGuest ? "Guest Neighbor" : "Rivertree Resident");
   
   const whatsappUrl = `https://wa.me/${shopWhatsApp}?text=${encodeURIComponent(
     `Hi Lotus Premium Mart! My name is ${customerName}. Here is what I would love to see on your shelves:`
-  )}`; //[cite: 4]
+  )}`;
 
   return (
-    <div className="min-h-screen bg-orange-500 flex flex-col items-center">
-      {/* Top Header Bar */}
-      <HeaderBar />
+    <div className="min-h-screen bg-orange-500 flex items-center justify-center p-4 sm:p-6">
+      {/* Main Content Box */}
+      <div className="max-w-md w-full bg-white rounded-xl shadow-2xl border-t-8 border-green-500 overflow-hidden text-center text-black">
 
-      {/* Main Feedback Card */}
-      <main className="flex-1 w-full flex items-center justify-center p-4 sm:p-6">
-        <div className="max-w-md w-full bg-white p-6 sm:p-8 rounded-xl shadow-2xl border-t-8 border-green-500 text-center text-black">
+
+        {/* Inner Content Area */}
+        <div className="p-6 sm:p-8">
+          <HeaderBar />
           <h1 className="text-2xl sm:text-3xl font-black mb-1">
             Online Store Coming Soon!
           </h1>
@@ -58,7 +59,7 @@ export default function ComingSoon({ user, isGuest, onLogout }) {
             </button>
           )}
         </div>
-      </main>
+      </div>
     </div>
   );
 }
